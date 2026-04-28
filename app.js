@@ -147,53 +147,78 @@ function buildCard(lead, keywords) {
   const card = document.createElement("div");
   card.className = "lead-card";
 
-  const date      = lead.dateReceived ? formatDate(lead.dateReceived) : "";
-  const type      = lead.applicationType ?? "";
-  const title     = lead.description
-    ? lead.description.slice(0, 140) + (lead.description.length > 140 ? "…" : "")
-    : lead.address;
-  const chips     = filterMaterials(lead.materials ?? [], keywords).slice(0, 6);
-  const emails    = lead.emails ?? [];
-  const phones    = lead.phones ?? [];
+  const title    = lead.description || lead.address;
+  const chips    = filterMaterials(lead.materials ?? [], keywords).slice(0, 8);
+  const emails   = lead.emails ?? [];
+  const phones   = lead.phones ?? [];
   const architect = cleanArchitect(lead.architect ?? []);
-  const areas     = lead.areasM2 ?? [];
-  const areaLabel = areas.length ? `~${Math.max(...areas.map(parseFloat)).toFixed(0)} m²` : "";
-  const category  = lead.category ? formatCategory(lead.category) : "";
-  const enrichedDate = lead.enrichedAt ? formatDate(lead.enrichedAt) : "";
+  const areas    = lead.areasM2 ?? [];
+  const category = lead.category ? formatCategory(lead.category) : "";
 
-  // Build contact block
-  let contactHtml = "";
-  if (emails.length || phones.length || architect) {
-    const lines = [];
-    if (architect) lines.push(`<span class="contact-name">${escHtml(architect)}</span>`);
-    emails.forEach((e) => lines.push(`<a class="contact-email" href="mailto:${escHtml(e)}">${escHtml(e)}</a>`));
-    phones.forEach((p) => lines.push(`<a class="contact-phone" href="tel:${escHtml(p)}">${escHtml(p)}</a>`));
-    contactHtml = `<div class="contact-block"><span class="contact-label">Architect</span>${lines.join("")}</div>`;
-  } else {
-    contactHtml = `<span class="no-contact">No contact extracted</span>`;
+  function row(label, value, cls = "") {
+    if (!value) return "";
+    return `<div class="detail-row">
+      <span class="detail-label">${label}</span>
+      <span class="detail-value${cls ? " " + cls : ""}">${value}</span>
+    </div>`;
   }
 
+  function linkRow(label, href, text, cls = "") {
+    if (!href) return "";
+    return `<div class="detail-row">
+      <span class="detail-label">${label}</span>
+      <a class="detail-value detail-link${cls ? " " + cls : ""}" href="${escHtml(href)}">${escHtml(text)}</a>
+    </div>`;
+  }
+
+  const materialsHtml = chips.length
+    ? `<div class="detail-row detail-row--chips">
+        <span class="detail-label">Materials</span>
+        <span class="detail-value chip-row">${chips.map((m) => `<span class="chip">${escHtml(m)}</span>`).join("")}</span>
+      </div>`
+    : "";
+
+  let contactHtml = "";
+  if (architect || emails.length || phones.length) {
+    const lines = [];
+    if (architect) lines.push(`<span class="detail-contact-name">${escHtml(architect)}</span>`);
+    emails.forEach((e) => lines.push(`<a href="mailto:${escHtml(e)}" class="detail-link">${escHtml(e)}</a>`));
+    phones.forEach((p) => lines.push(`<a href="tel:${escHtml(p)}" class="detail-link">${escHtml(p)}</a>`));
+    contactHtml = `<div class="detail-row">
+      <span class="detail-label">Architect</span>
+      <span class="detail-value detail-contact">${lines.join("")}</span>
+    </div>`;
+  }
+
+  const hasAI = lead.category || lead.developmentScale || lead.estimatedUnits || lead.buildingType;
+  const aiSection = hasAI ? `
+    <div class="detail-section-heading">AI Classification</div>
+    ${row("Category", category, "val-teal")}
+    ${row("Scale", lead.developmentScale ? formatScale(lead.developmentScale) : "")}
+    ${row("Est. Units", lead.estimatedUnits != null ? String(lead.estimatedUnits) : "")}
+    ${row("Building Type", lead.buildingType ? formatCategory(lead.buildingType) : "")}
+    ${lead.enrichedAt ? row("Classified", formatDate(lead.enrichedAt), "val-muted") : ""}
+  ` : "";
+
   card.innerHTML = `
-    <div class="card-top">
+    <div class="card-header">
       <div class="card-title">${escHtml(title)}</div>
       ${category ? `<span class="category-badge">${escHtml(category)}</span>` : ""}
     </div>
-    <div class="card-meta">
-      <span>${escHtml(lead.address)}</span>
-    </div>
-    <div class="card-meta card-meta--secondary">
-      <span>${escHtml(lead.council)}</span>
-      ${date ? `<span>${date}</span>` : ""}
-      ${type ? `<span>${escHtml(type)}</span>` : ""}
-      ${areaLabel ? `<span class="area-label">${areaLabel}</span>` : ""}
-      ${enrichedDate ? `<span class="enriched-date">AI classified ${enrichedDate}</span>` : ""}
-    </div>
-    ${chips.length ? `<div class="chip-row">${chips.map((m) => `<span class="chip">${escHtml(m)}</span>`).join("")}</div>` : ""}
-    <div class="card-footer">
+    <div class="card-ref">${escHtml(lead.reference)} · ${escHtml(lead.council)}</div>
+    <div class="card-details">
+      ${row("Address", escHtml(lead.address))}
+      ${row("Status", lead.status ? formatStatus(lead.status) : "")}
+      ${row("Type", lead.applicationType ? formatCategory(lead.applicationType) : "")}
+      ${row("Received", lead.dateReceived ? formatDate(lead.dateReceived) : "")}
+      ${areas.length ? row("Floor Area", `~${Math.max(...areas.map(parseFloat)).toFixed(0)} m²`, "val-amber") : ""}
+      ${row("Case Officer", lead.caseOfficer ?? "")}
+      ${row("Applicant", lead.applicantName ?? "")}
+      ${row("Agent", lead.agentName ?? "")}
+      ${materialsHtml}
       ${contactHtml}
-      ${lead.portalUrl
-        ? `<a class="card-link" href="${escHtml(lead.portalUrl)}" target="_blank" rel="noopener">View on portal →</a>`
-        : ""}
+      ${aiSection}
+      ${lead.portalUrl ? linkRow("Portal", lead.portalUrl, "View application →", "val-teal") : ""}
     </div>
   `;
   return card;
@@ -275,4 +300,14 @@ function formatCategory(raw) {
   return raw
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatScale(raw) {
+  const map = { major: "Major", minor: "Minor", householder: "Householder", other: "Other" };
+  return map[raw?.toLowerCase()] ?? formatCategory(raw);
+}
+
+function formatStatus(raw) {
+  const map = { pending: "Pending", approved: "Approved", refused: "Refused", withdrawn: "Withdrawn", appeal: "Appeal" };
+  return map[raw?.toLowerCase()] ?? formatCategory(raw);
 }

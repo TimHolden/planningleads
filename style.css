@@ -201,7 +201,7 @@ header {
   border-color: #cbd5e1;
 }
 
-.card-top {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -229,38 +229,81 @@ header {
   white-space: nowrap;
 }
 
-.card-meta {
+.card-ref {
   font-size: 0.78rem;
-  color: var(--text);
-  font-weight: 500;
-  margin-bottom: 0.2rem;
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-.card-meta--secondary {
   color: var(--muted);
-  font-weight: 400;
-  margin-bottom: 0.55rem;
-}
-.card-meta span::after { content: "·"; margin-left: 0.4rem; }
-.card-meta span:last-child::after { content: ""; }
-
-.area-label {
-  font-weight: 600;
-  color: var(--amber);
+  margin-bottom: 0.75rem;
 }
 
-.enriched-date {
+/* ── Detail rows ─────────────────────────────────────────── */
+.card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  align-items: baseline;
+}
+.detail-row:first-child { border-top: none; }
+
+.detail-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding-top: 0.05rem;
+}
+
+.detail-value {
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.detail-section-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   color: var(--teal);
-  font-style: italic;
+  padding: 0.6rem 0 0.15rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.1rem;
 }
 
+.detail-link {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 500;
+}
+.detail-link:hover { text-decoration: underline; }
+
+.detail-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.detail-contact-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.val-teal  { color: var(--teal);  font-weight: 500; }
+.val-amber { color: var(--amber); font-weight: 600; }
+.val-muted { color: var(--muted); font-style: italic; }
+
+/* ── Materials chips ─────────────────────────────────────── */
 .chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-bottom: 0.7rem;
 }
 
 .chip {
@@ -274,54 +317,7 @@ header {
   color: var(--chip-text);
 }
 
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.contact-block {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.contact-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--green);
-}
-
-.contact-name {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.contact-email, .contact-phone {
-  font-size: 0.82rem;
-  color: var(--teal);
-  text-decoration: none;
-  font-weight: 500;
-}
-.contact-email:hover, .contact-phone:hover { text-decoration: underline; }
-
-.no-contact {
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-.card-link {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--teal);
-  text-decoration: none;
-}
-.card-link:hover { text-decoration: underline; }
+.detail-row--chips { align-items: flex-start; }
 
 /* ── Empty / loading states ──────────────────────────────── */
 .state-box {
