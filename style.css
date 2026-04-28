@@ -260,21 +260,33 @@ header {
   gap: 0.5rem;
 }
 
-.contact-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 600;
+.contact-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.contact-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--green);
 }
-.contact-badge::before {
-  content: "";
-  width: 7px; height: 7px;
-  background: var(--green);
-  border-radius: 50%;
-  display: inline-block;
+
+.contact-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
 }
+
+.contact-email, .contact-phone {
+  font-size: 0.82rem;
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 500;
+}
+.contact-email:hover, .contact-phone:hover { text-decoration: underline; }
 
 .no-contact {
   font-size: 0.78rem;

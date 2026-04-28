@@ -147,11 +147,25 @@ function buildCard(lead, keywords) {
   const card = document.createElement("div");
   card.className = "lead-card";
 
-  const date    = lead.dateReceived ? formatDate(lead.dateReceived) : "";
-  const type    = lead.applicationType ?? "";
-  const desc    = lead.description ? lead.description.slice(0, 120) + (lead.description.length > 120 ? "…" : "") : "";
-  const chips   = filterMaterials(lead.materials ?? [], keywords).slice(0, 6);
-  const contact = lead.hasContact;
+  const date     = lead.dateReceived ? formatDate(lead.dateReceived) : "";
+  const type     = lead.applicationType ?? "";
+  const desc     = lead.description ? lead.description.slice(0, 120) + (lead.description.length > 120 ? "…" : "") : "";
+  const chips    = filterMaterials(lead.materials ?? [], keywords).slice(0, 6);
+  const emails   = lead.emails ?? [];
+  const phones   = lead.phones ?? [];
+  const architect = cleanArchitect(lead.architect ?? []);
+
+  // Build contact block
+  let contactHtml = "";
+  if (emails.length || phones.length || architect) {
+    const lines = [];
+    if (architect) lines.push(`<span class="contact-name">${escHtml(architect)}</span>`);
+    emails.forEach((e) => lines.push(`<a class="contact-email" href="mailto:${escHtml(e)}">${escHtml(e)}</a>`));
+    phones.forEach((p) => lines.push(`<a class="contact-phone" href="tel:${escHtml(p)}">${escHtml(p)}</a>`));
+    contactHtml = `<div class="contact-block"><span class="contact-label">Architect</span>${lines.join("")}</div>`;
+  } else {
+    contactHtml = `<span class="no-contact">No contact extracted</span>`;
+  }
 
   card.innerHTML = `
     <div class="card-top">
@@ -165,15 +179,22 @@ function buildCard(lead, keywords) {
     ${desc ? `<div class="card-description">${escHtml(desc)}</div>` : ""}
     ${chips.length ? `<div class="chip-row">${chips.map((m) => `<span class="chip">${escHtml(m)}</span>`).join("")}</div>` : ""}
     <div class="card-footer">
-      ${contact
-        ? `<span class="contact-badge">Architect contact available</span>`
-        : `<span class="no-contact">No contact extracted</span>`}
+      ${contactHtml}
       ${lead.portalUrl
         ? `<a class="card-link" href="${escHtml(lead.portalUrl)}" target="_blank" rel="noopener">View on portal →</a>`
         : ""}
     </div>
   `;
   return card;
+}
+
+function cleanArchitect(names) {
+  // Pick the most name-like string — shortest, no newlines, title-case
+  const cleaned = names
+    .map((n) => n.replace(/\s+/g, " ").trim())
+    .filter((n) => n.length > 2 && n.length < 60 && !n.includes("\n") && /[A-Z]/.test(n))
+    .sort((a, b) => a.length - b.length);
+  return cleaned[0] ?? "";
 }
 
 function filterMaterials(materials, keywords) {
