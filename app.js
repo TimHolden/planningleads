@@ -149,13 +149,17 @@ function buildCard(lead, keywords) {
 
   const date      = lead.dateReceived ? formatDate(lead.dateReceived) : "";
   const type      = lead.applicationType ?? "";
-  const desc      = lead.description ? lead.description.slice(0, 120) + (lead.description.length > 120 ? "…" : "") : "";
+  const title     = lead.description
+    ? lead.description.slice(0, 140) + (lead.description.length > 140 ? "…" : "")
+    : lead.address;
   const chips     = filterMaterials(lead.materials ?? [], keywords).slice(0, 6);
   const emails    = lead.emails ?? [];
   const phones    = lead.phones ?? [];
   const architect = cleanArchitect(lead.architect ?? []);
   const areas     = lead.areasM2 ?? [];
   const areaLabel = areas.length ? `~${Math.max(...areas.map(parseFloat)).toFixed(0)} m²` : "";
+  const category  = lead.category ? formatCategory(lead.category) : "";
+  const enrichedDate = lead.enrichedAt ? formatDate(lead.enrichedAt) : "";
 
   // Build contact block
   let contactHtml = "";
@@ -171,15 +175,19 @@ function buildCard(lead, keywords) {
 
   card.innerHTML = `
     <div class="card-top">
-      <div class="card-address">${escHtml(lead.address)}</div>
+      <div class="card-title">${escHtml(title)}</div>
+      ${category ? `<span class="category-badge">${escHtml(category)}</span>` : ""}
     </div>
     <div class="card-meta">
+      <span>${escHtml(lead.address)}</span>
+    </div>
+    <div class="card-meta card-meta--secondary">
       <span>${escHtml(lead.council)}</span>
       ${date ? `<span>${date}</span>` : ""}
       ${type ? `<span>${escHtml(type)}</span>` : ""}
       ${areaLabel ? `<span class="area-label">${areaLabel}</span>` : ""}
+      ${enrichedDate ? `<span class="enriched-date">AI classified ${enrichedDate}</span>` : ""}
     </div>
-    ${desc ? `<div class="card-description">${escHtml(desc)}</div>` : ""}
     ${chips.length ? `<div class="chip-row">${chips.map((m) => `<span class="chip">${escHtml(m)}</span>`).join("")}</div>` : ""}
     <div class="card-footer">
       ${contactHtml}
@@ -261,4 +269,10 @@ function formatDate(iso) {
   } catch {
     return iso;
   }
+}
+
+function formatCategory(raw) {
+  return raw
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
