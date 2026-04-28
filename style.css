@@ -227,6 +227,11 @@ header {
 .card-meta span::after { content: "·"; margin-left: 0.4rem; }
 .card-meta span:last-child::after { content: ""; }
 
+.area-label {
+  font-weight: 600;
+  color: var(--amber);
+}
+
 .card-description {
   font-size: 0.83rem;
   color: var(--muted);

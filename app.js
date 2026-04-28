@@ -147,13 +147,15 @@ function buildCard(lead, keywords) {
   const card = document.createElement("div");
   card.className = "lead-card";
 
-  const date     = lead.dateReceived ? formatDate(lead.dateReceived) : "";
-  const type     = lead.applicationType ?? "";
-  const desc     = lead.description ? lead.description.slice(0, 120) + (lead.description.length > 120 ? "…" : "") : "";
-  const chips    = filterMaterials(lead.materials ?? [], keywords).slice(0, 6);
-  const emails   = lead.emails ?? [];
-  const phones   = lead.phones ?? [];
+  const date      = lead.dateReceived ? formatDate(lead.dateReceived) : "";
+  const type      = lead.applicationType ?? "";
+  const desc      = lead.description ? lead.description.slice(0, 120) + (lead.description.length > 120 ? "…" : "") : "";
+  const chips     = filterMaterials(lead.materials ?? [], keywords).slice(0, 6);
+  const emails    = lead.emails ?? [];
+  const phones    = lead.phones ?? [];
   const architect = cleanArchitect(lead.architect ?? []);
+  const areas     = lead.areasM2 ?? [];
+  const areaLabel = areas.length ? `~${Math.max(...areas.map(parseFloat)).toFixed(0)} m²` : "";
 
   // Build contact block
   let contactHtml = "";
@@ -175,6 +177,7 @@ function buildCard(lead, keywords) {
       <span>${escHtml(lead.council)}</span>
       ${date ? `<span>${date}</span>` : ""}
       ${type ? `<span>${escHtml(type)}</span>` : ""}
+      ${areaLabel ? `<span class="area-label">${areaLabel}</span>` : ""}
     </div>
     ${desc ? `<div class="card-description">${escHtml(desc)}</div>` : ""}
     ${chips.length ? `<div class="chip-row">${chips.map((m) => `<span class="chip">${escHtml(m)}</span>`).join("")}</div>` : ""}
